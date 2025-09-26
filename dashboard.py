@@ -14,6 +14,50 @@ from lime import lime_text
 from sklearn.pipeline import Pipeline
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+import os
+import pickle
+from tensorflow.keras.models import load_model
+
+# --- ARTIFACTS DIRECTORY ---
+ARTIFACTS_DIR = os.path.join(os.path.dirname(__file__), "artifacts")
+
+# --- LOAD TOKENIZERS AND MAX LENGTH ---
+try:
+    with open(os.path.join(ARTIFACTS_DIR, "tokenizer.pkl"), "rb") as f:
+        tokenizer = pickle.load(f)
+except Exception as e:
+    tokenizer = None
+    print("Tokenizer load error:", e)
+
+try:
+    with open(os.path.join(ARTIFACTS_DIR, "max_length.pkl"), "rb") as f:
+        max_len = pickle.load(f)
+except Exception as e:
+    max_len = None
+    print("Max length load error:", e)
+
+# --- LOAD LSTM MODELS ---
+try:
+    lstm_model = load_model(os.path.join(ARTIFACTS_DIR, "lstm_model.h5"))
+except Exception as e:
+    lstm_model = None
+    print("LSTM model load error:", e)
+
+try:
+    lstm_model_fixed = load_model(os.path.join(ARTIFACTS_DIR, "lstm_model_fixed.h5"))
+except Exception as e:
+    lstm_model_fixed = None
+    print("LSTM fixed model load error:", e)
+
+# --- LOAD NAIVE BAYES PIPELINE ---
+try:
+    with open(os.path.join(ARTIFACTS_DIR, "model_pipeline.pkl"), "rb") as f:
+        nb_model = pickle.load(f)
+except Exception as e:
+    nb_model = None
+    print("NB pipeline load error:", e)
+
+
 def evaluate_models(nb_model, lstm_model, tokenizer, max_len, test_df):
     """Evaluate NB and LSTM models on test data and return metrics"""
     from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
